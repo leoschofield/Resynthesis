@@ -31,6 +31,8 @@ private:
     // access the processor object that created it.
     ResynthesiserAudioProcessor& audioProcessor;
     juce::Label noteDisplayLabel;
+    juce::Label FFTDisplayLabel;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResynthesiserAudioProcessorEditor)
 };

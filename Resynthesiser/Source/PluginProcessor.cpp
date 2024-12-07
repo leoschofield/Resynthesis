@@ -19,10 +19,12 @@ ResynthesiserAudioProcessor::ResynthesiserAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+                    fft (fftOrder),
+                    window (fftSize, juce::dsp::WindowingFunction<float>::hann)
+
 #endif
 {
-//    midiCollector.reset(0);
 }
 
 ResynthesiserAudioProcessor::~ResynthesiserAudioProcessor()
@@ -96,6 +98,8 @@ void ResynthesiserAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     // Set the sample rate for the synth
     mySineSynth.setCurrentPlaybackSampleRate(sampleRate);
+    juce::ignoreUnused(samplesPerBlock);
+    this->sampleRate = sampleRate;
 }
 
 void ResynthesiserAudioProcessor::releaseResources()
@@ -135,6 +139,18 @@ void ResynthesiserAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    
+    static int counter = 0;
+    
+    if( ++counter > 10)
+    {
+        counter = 0;
+        auto amplitude = getRMSAmplitude(buffer);
+
+        mySineSynth.triggerNote(
+            frequencyToNearestMidiNote(getFundamentalFrequency()),// message.getNoteNumber(),
+                                amplitude);
+    }
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -145,17 +161,18 @@ void ResynthesiserAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+
     // Iterate through MIDI messages directly
     for (const auto metadata : midiMessages)
     {
         auto message = metadata.getMessage();
-
+        
         // Note On
         if (message.isNoteOn())
         {
             // Trigger the synth
             mySineSynth.triggerNote(
-                message.getNoteNumber(),
+                frequencyToNearestMidiNote(getFundamentalFrequency()),// message.getNoteNumber(),
                 message.getVelocity() / 127.0f
             );
 
@@ -177,11 +194,19 @@ void ResynthesiserAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                            juce::String(message.getNoteNumber());
         }
     }
+    
+    //Load samples into FFT
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        auto* channelData = buffer.getReadPointer(0);
+        for (int i = 0; i < buffer.getNumSamples(); ++i)
+        {
+             pushNextSampleIntoFifo(channelData[i]);
+        }
+    }
 
     // Render synth audio
     mySineSynth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
-
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -189,12 +214,6 @@ void ResynthesiserAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
 }
 
 //==============================================================================

@@ -16,15 +16,13 @@ private:
 
 public:
     SineSynthVoice() {
-        // Configure very quick envelope
         juce::ADSR::Parameters params;
-        params.attack = 0.001f;
-        params.decay = 0.02f;
-        params.sustain = 0.0f;
-        params.release = 0.01f;
+        params.attack = 0.01f;
+        params.decay = 1.0f;
+        params.sustain = 0.00f;
+        params.release = 0.0f;
         envelope.setParameters(params);
         
-        // Default sine oscillator
         oscillator.initialise([](float x) { return std::sin(x); });
     }
 
