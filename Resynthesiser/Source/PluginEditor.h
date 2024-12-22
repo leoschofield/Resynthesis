@@ -33,6 +33,10 @@ private:
     juce::Label noteDisplayLabel;
     juce::Label FFTDisplayLabel;
 
+    juce::Slider fundamentalSlider, rangeSlider, dragSlider, grainDensitySlider, grainWindowSlider, grainSizeSlider;
+//    juce::Label fundamentalLabel, rangeLabel, dragLabel, grainDensityLabel, grainWindowLabel, grainSizeLabel;
+    juce::AudioProcessorValueTreeState::SliderAttachment fundamentalAttachment, dragAttachment, rangeAttachment, grainDensityAttachment, grainWindowAttachment, grainSizeAttachment;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResynthesiserAudioProcessorEditor)
 };

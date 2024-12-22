@@ -17,6 +17,8 @@
 class ResynthesiserAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    juce::AudioProcessorValueTreeState state;
+
     //==============================================================================
     ResynthesiserAudioProcessor();
     ~ResynthesiserAudioProcessor() override;

@@ -20,6 +20,15 @@ ResynthesiserAudioProcessor::ResynthesiserAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ),
+                        state (*this, nullptr, "STATE", {
+                            std::make_unique<juce::AudioParameterFloat> (juce::ParameterID { "fundamental",     1 },   "Fundamental Freq",                  0.0f, 1.0f, 0.5f),
+                            std::make_unique<juce::AudioParameterFloat> (juce::ParameterID { "drag",      1 },         "Drag time of resyntheizer",         0.0f, 1.0f, 0.5f),
+                            std::make_unique<juce::AudioParameterFloat> (juce::ParameterID { "range", 1 },             "Range of Harmonics",                0.0f, 1.0f, 0.5f),
+                            std::make_unique<juce::AudioParameterFloat>   (juce::ParameterID { "grainDensity",      1 }, "Number of concurrent sine grains",  0.0f, 1.0f, 0.5f),
+                            std::make_unique<juce::AudioParameterFloat> (juce::ParameterID { "grainWindow",      1 },  "Individual Grain Shape",            0.0f, 1.0f, 0.5f),
+                            std::make_unique<juce::AudioParameterFloat>   (juce::ParameterID { "grainSize",      1 },    "Individual Grain Size",             0.0f, 1.0f, 0.5f)
+                        }),
+
                     fft (fftOrder),
                     window (fftSize, juce::dsp::WindowingFunction<float>::hann)
 
@@ -139,7 +148,15 @@ void ResynthesiserAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-    
+
+    float fundamental     = state.getParameter ("fundamental")->getValue();
+    float drag            = state.getParameter ("drag")->getValue();
+    float range           = state.getParameter ("range")->getValue();
+    float grainDensity    = state.getParameter ("grainDensity")->getValue();
+    float grainWindow     = state.getParameter ("grainWindow")->getValue();
+    float grainSize       = state.getParameter ("grainSize")->getValue();
+
+
     static int counter = 0;
     
     if( ++counter > 10)
@@ -230,15 +247,14 @@ juce::AudioProcessorEditor* ResynthesiserAudioProcessor::createEditor()
 //==============================================================================
 void ResynthesiserAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    if (auto xmlState = state.copyState().createXml())
+        copyXmlToBinary (*xmlState, destData);
 }
 
 void ResynthesiserAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    if (auto xmlState = getXmlFromBinary (data, sizeInBytes))
+        state.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
 //==============================================================================
