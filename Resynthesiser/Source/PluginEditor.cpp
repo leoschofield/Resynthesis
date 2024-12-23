@@ -30,12 +30,12 @@ ResynthesiserAudioProcessorEditor::ResynthesiserAudioProcessorEditor (Resynthesi
     FFTDisplayLabel.setFont(juce::Font(20.0f));
     FFTDisplayLabel.setColour(juce::Label::textColourId, juce::Colours::white);
 
-    fundamentalSlider    .setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    rangeSlider.setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    dragSlider     .setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    grainDensitySlider  .setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    grainWindowSlider  .setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
-    grainSizeSlider  .setSliderStyle (juce::Slider::SliderStyle::LinearVertical);
+    fundamentalSlider    .setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
+    rangeSlider.setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
+    dragSlider     .setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
+    grainDensitySlider  .setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
+    grainWindowSlider  .setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
+    grainSizeSlider  .setSliderStyle (juce::Slider::SliderStyle::LinearHorizontal);
     
     addAndMakeVisible(fundamentalSlider);
     addAndMakeVisible(rangeSlider);
@@ -43,6 +43,35 @@ ResynthesiserAudioProcessorEditor::ResynthesiserAudioProcessorEditor (Resynthesi
     addAndMakeVisible(grainDensitySlider);
     addAndMakeVisible(grainWindowSlider);
     addAndMakeVisible(grainSizeSlider);
+    
+    fundamentalLabel, rangeLabel, dragLabel, grainDensityLabel, grainWindowLabel, grainSizeLabel;
+
+    
+    fundamentalLabel.setText("Fundamental", juce::dontSendNotification);
+    fundamentalLabel.attachToComponent(&fundamentalSlider, true);
+    addAndMakeVisible(fundamentalLabel);
+    
+    rangeLabel.setText("Range", juce::dontSendNotification);
+    rangeLabel.attachToComponent(&rangeSlider, true);
+    addAndMakeVisible(rangeLabel);
+
+    dragLabel.setText("Drag", juce::dontSendNotification);
+    dragLabel.attachToComponent(&dragSlider, true);
+    addAndMakeVisible(dragLabel);
+
+    grainDensityLabel.setText("Grain Density", juce::dontSendNotification);
+    grainDensityLabel.attachToComponent(&grainDensitySlider, true);
+    addAndMakeVisible(grainDensityLabel);
+
+    grainWindowLabel.setText("Grain Window", juce::dontSendNotification);
+    grainWindowLabel.attachToComponent(&grainWindowSlider, true);
+    addAndMakeVisible(grainWindowLabel);
+
+    grainSizeLabel.setText("Grain Size", juce::dontSendNotification);
+    grainSizeLabel.attachToComponent(&grainSizeSlider, true);
+    addAndMakeVisible(grainSizeLabel);
+
+
 
     setSize (800, 600);
     startTimer(60);
@@ -67,16 +96,19 @@ void ResynthesiserAudioProcessorEditor::resized()
     noteDisplayLabel.setBounds(10, 10, getWidth() - 20, 50);
     FFTDisplayLabel.setBounds(10, 30, getWidth() - 20, 50);
     
-    juce::Rectangle<int> bounds = getLocalBounds();
-    const int numParams = 6;
-    int margin = 20;
+//    juce::Rectangle<int> bounds = getLocalBounds();
+//    const int numParams = 6;
+    const int margin = 20;
+    const int labelWidth = 100;
+    const int labelHeight = 100;
 
-    juce::Rectangle<int> param1Bounds = bounds.removeFromLeft (getWidth() / numParams);
-    juce::Rectangle<int> param2Bounds = bounds.removeFromLeft (getWidth() / numParams-1);
-    juce::Rectangle<int> param3Bounds = bounds.removeFromLeft (getWidth() / numParams-2);
-    juce::Rectangle<int> param4Bounds = bounds.removeFromLeft (getWidth() / numParams-3);
-    juce::Rectangle<int> param5Bounds = bounds.removeFromLeft (getWidth() / numParams-4);
-    juce::Rectangle<int> param6Bounds = bounds.removeFromLeft (getWidth() / numParams-5);
+
+    juce::Rectangle<int> param1Bounds(labelWidth,200,getWidth()-labelWidth, labelHeight);
+    juce::Rectangle<int> param2Bounds(labelWidth,250,getWidth()-labelWidth, labelHeight);
+    juce::Rectangle<int> param3Bounds(labelWidth,300,getWidth()-labelWidth, labelHeight);
+    juce::Rectangle<int> param4Bounds(labelWidth,350,getWidth()-labelWidth, labelHeight);
+    juce::Rectangle<int> param5Bounds(labelWidth,400,getWidth()-labelWidth, labelHeight);
+    juce::Rectangle<int> param6Bounds(labelWidth,450,getWidth()-labelWidth, labelHeight);
 
     fundamentalSlider.setBounds (param1Bounds.reduced (margin));
     rangeSlider.setBounds (param2Bounds.reduced (margin));

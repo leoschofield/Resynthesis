@@ -34,7 +34,7 @@ private:
     juce::Label FFTDisplayLabel;
 
     juce::Slider fundamentalSlider, rangeSlider, dragSlider, grainDensitySlider, grainWindowSlider, grainSizeSlider;
-//    juce::Label fundamentalLabel, rangeLabel, dragLabel, grainDensityLabel, grainWindowLabel, grainSizeLabel;
+    juce::Label fundamentalLabel, rangeLabel, dragLabel, grainDensityLabel, grainWindowLabel, grainSizeLabel;
     juce::AudioProcessorValueTreeState::SliderAttachment fundamentalAttachment, dragAttachment, rangeAttachment, grainDensityAttachment, grainWindowAttachment, grainSizeAttachment;
 
 
